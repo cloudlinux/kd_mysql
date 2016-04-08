@@ -11,6 +11,7 @@
 # Minimal memory needed for MySQL container with INNODB configuration is
 # 256Mb.
 
+
 ENGINE="$1"
 
 if [ "$ENGINE" != innodb ] && [ "$ENGINE" != myisam ]; then
@@ -38,30 +39,33 @@ innodb_buffer_pool_size=$((5 * 1024 * 1024))
 innodb_log_buffer_size=$((256 * 1024))
 key_buffer_size=8
 
+query_cache_size=0
+innodb_ft_cache_size=1600000
+innodb_ft_total_cache_size=32000000
+innodb_log_files_in_group=2
+innodb_log_file_size=$((4 * 1024 * 1024))
+
+thread_stack=131072
+sort_buffer_size=$((32 * 1024))
+read_buffer_size=8200
+read_rnd_buffer_size=8200
+max_heap_table_size=$((1 * 1024))
+tmp_table_size=$((1 * 1024))
+bulk_insert_buffer_size=0
+join_buffer_size=128
+net_buffer_length=1024
+innodb_sort_buffer_size=$((64 * 1024))
+
+binlog_cache_size=$((4 * 1024))
+binlog_stmt_cache_size=$((4 * 1024))
+
+performance_schema=OFF
+
 # Assume one additional connection for every 25mb available memory
 MAX_CONNECTION_DIVIDER=$((1024 * 1024 * 25))
 
 if (( $TOTAL_MEMORY <= $MEMORY_LIMIT_512M )); then
-    query_cache_size=0
     max_connections=10
-    innodb_ft_cache_size=1600000
-    innodb_ft_total_cache_size=32000000
-    innodb_log_files_in_group=2
-    innodb_log_file_size=$((4 * 1024 * 1024))
-
-    thread_stack=131072
-    sort_buffer_size=$((32 * 1024))
-    read_buffer_size=8200
-    read_rnd_buffer_size=8200
-    max_heap_table_size=$((1 * 1024))
-    tmp_table_size=$((1 * 1024))
-    bulk_insert_buffer_size=0
-    join_buffer_size=128
-    net_buffer_length=1024
-    innodb_sort_buffer_size=$((64 * 1024))
-
-    binlog_cache_size=$((4 * 1024))
-    binlog_stmt_cache_size=$((4 * 1024))
     
     if (( $TOTAL_MEMORY > $MEMORY_LIMIT_256M )); then
         TO_ALLOCATE=$(($TOTAL_MEMORY - $MEMORY_LIMIT_256M))
@@ -74,40 +78,28 @@ if (( $TOTAL_MEMORY <= $MEMORY_LIMIT_512M )); then
         fi
     fi
 
-    performance_schema=OFF
-
 elif (( $TOTAL_MEMORY < $MEMORY_LIMIT_1G )); then
+
     TO_ALLOCATE=$(($TOTAL_MEMORY - $MEMORY_LIMIT_512M))
     if [ "$ENGINE" = innodb ]; then
       innodb_buffer_pool_size=$((256 * 1024 * 1024 + $TO_ALLOCATE / 2))
-      innodb_log_buffer_size=$((16 * 1024 * 1024))
+      innodb_log_buffer_size=$((4 * 1024 * 1024))
     elif [ "$ENGINE" = myisam ]; then
         key_buffer_size=$(( 256 * 1024 * 1024 + $TO_ALLOCATE / 4 ))
     fi
     max_connections=$((20 + $TO_ALLOCATE / $MAX_CONNECTION_DIVIDER))
-    query_cache_size=1048576
-    innodb_ft_cache_size=1600000
-    innodb_ft_total_cache_size=32000000
-    innodb_log_files_in_group=2
-    innodb_log_file_size=$((32 * 1024 * 1024))
 
-    thread_stack=131072
     sort_buffer_size=$((1024 * 1024))
-    read_buffer_size=$((128 * 1024))
-    read_rnd_buffer_size=$((256 * 1024))
-    max_heap_table_size=$((16 * 1024 * 1024))
-    tmp_table_size=$((16 * 1024 * 1024))
-    bulk_insert_buffer_size=$((4 * 1024 * 1024))
-    join_buffer_size=$((128 * 1024))
-    net_buffer_length=$((16 * 1024))
+    read_buffer_size=$((32 * 1024))
+    read_rnd_buffer_size=$((32 * 1024))
+    max_heap_table_size=$((1024 * 1024))
+    tmp_table_size=$((1024 * 1024))
+    join_buffer_size=1024
+    net_buffer_length=$((4 * 1024))
     innodb_sort_buffer_size=$((1024 * 1024))
 
-    binlog_cache_size=$((32 * 1024))
-    binlog_stmt_cache_size=$((32 * 1024))
-
-    performance_schema=OFF
-
 else # All that is greater than 1G of available memory
+
     TO_ALLOCATE=$(($TOTAL_MEMORY - $MEMORY_LIMIT_1G))
     if [ "$ENGINE" = innodb ]; then
         innodb_buffer_pool_size=$((512 * 1024 * 1024 + $TO_ALLOCATE / 2 ))
