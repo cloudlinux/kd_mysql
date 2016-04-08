@@ -2,6 +2,9 @@
 set -eo pipefail
 shopt -s nullglob
 
+# Script to auto configure memory allocation
+AUTO_MEMORY_CONFIG=/usr/local/bin/auto_memory_config.sh
+
 # if command starts with an option, prepend mysqld
 if [ "${1:0:1}" = '-' ]; then
 	set -- mysqld "$@"
@@ -129,6 +132,10 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
 		echo 'MySQL init process done. Ready for start up.'
 		echo
 	fi
+fi
+
+if [ ! -z $MYSQL_AUTO_MEMORY_ALLOCATE ]; then
+    bash "$AUTO_MEMORY_CONFIG" "$MYSQL_AUTO_MEMORY_ALLOCATE"
 fi
 
 exec "$@"
