@@ -25,9 +25,9 @@ _datadir() {
 	"$@" --verbose --help 2>/dev/null | awk '$1 == "datadir" { print $2; exit }'
 }
 
-if [ ! -z $MYSQL_AUTO_MEMORY_ALLOCATE ]; then
-    bash "$AUTO_MEMORY_CONFIG" "$MYSQL_AUTO_MEMORY_ALLOCATE"
-fi
+# if [ ! -z $MYSQL_AUTO_MEMORY_ALLOCATE ]; then
+#     bash "$AUTO_MEMORY_CONFIG" "$MYSQL_AUTO_MEMORY_ALLOCATE"
+# fi
 
 # allow the container to be started with `--user`
 if [ "$1" = 'mysqld' -a -z "$wantHelp" -a "$(id -u)" = '0' ]; then
