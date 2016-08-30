@@ -30,6 +30,11 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" -a "$(id -u)" = '0' ]; then
 	DATADIR="$(_datadir "$@")"
 	mkdir -p "$DATADIR"
 	chown -R mysql:mysql "$DATADIR"
+
+	if [ ! -z $MYSQL_AUTO_MEMORY_ALLOCATE ]; then
+		bash "$AUTO_MEMORY_CONFIG" "$MYSQL_AUTO_MEMORY_ALLOCATE"
+	fi
+
 	exec gosu mysql "$BASH_SOURCE" "$@"
 fi
 
@@ -132,10 +137,6 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
 		echo 'MySQL init process done. Ready for start up.'
 		echo
 	fi
-fi
-
-if [ ! -z $MYSQL_AUTO_MEMORY_ALLOCATE ]; then
-    bash "$AUTO_MEMORY_CONFIG" "$MYSQL_AUTO_MEMORY_ALLOCATE"
 fi
 
 exec "$@"
