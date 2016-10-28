@@ -45,7 +45,7 @@ innodb_ft_total_cache_size=32000000
 innodb_log_files_in_group=2
 innodb_log_file_size=$((4 * 1024 * 1024))
 
-thread_stack=131072
+thread_stack=${MYSQL_THREAD_STACK_SIZE:-131072}
 sort_buffer_size=$((32 * 1024))
 read_buffer_size=8200
 read_rnd_buffer_size=8200
@@ -66,7 +66,7 @@ MAX_CONNECTION_DIVIDER=$((1024 * 1024 * 25))
 
 if (( $TOTAL_MEMORY <= $MEMORY_LIMIT_512M )); then
     max_connections=10
-    
+
     if (( $TOTAL_MEMORY > $MEMORY_LIMIT_256M )); then
         TO_ALLOCATE=$(($TOTAL_MEMORY - $MEMORY_LIMIT_256M))
         max_connections=$(($max_connections + $TO_ALLOCATE / $MAX_CONNECTION_DIVIDER))
@@ -114,7 +114,7 @@ else # All that is greater than 1G of available memory
     innodb_log_files_in_group=2
     innodb_log_file_size=$((64 * 1024 * 1024))
 
-    thread_stack=262144
+    thread_stack=${MYSQL_THREAD_STACK_SIZE:-262144}
     sort_buffer_size=$((2 * 1024 * 1024))
     read_buffer_size=$((128 * 1024))
     read_rnd_buffer_size=$((256 * 1024))
